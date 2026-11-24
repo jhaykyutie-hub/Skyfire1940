@@ -1,0 +1,38 @@
+
+name: Build Skyfire APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract project
+        run: unzip Skyfire1940AndroidProject.zip -d Skyfire1940Android
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Build APK
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          cd Skyfire1940Android
+          gradle assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Skyfire1940-APK
+          path: Skyfire1940Android/app/build/outputs/apk/debug/app-debug.apk
